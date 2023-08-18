@@ -19,7 +19,8 @@ export default function RegisterAndLoginForm()
         <div className="bg-blue-50 h-screen flex items-center">
             <form className="w-64 mx-auto mb-12" onSubmit={handleSubmit}>
                 <input value={username}
-                  onChange={ev =>setUsername(ev.target.value)}
+                  onChange={ev =>setUsername
+                    (ev.target.value)}
                   type="text" placeholder="username" className="block w-full rounded-sm p-2 mb-2" />
 
                 <input value={password}
@@ -34,14 +35,15 @@ export default function RegisterAndLoginForm()
                          isLoginOrRegister === 'register' && (
                           <div>
                                Already a member?
-                               <button onClick={() =>setIsLoginOrRegister('login')}>Login here</button>
+                               <button className="ml-1" onClick={() =>setIsLoginOrRegister('login')}>Login here</button>
                             </div>
                          )}
                        {
                         isLoginOrRegister ==='login' &&(
                           <div>
                           Don't have a account?
-                          <button className="ml-1" onClick={() =>setIsLoginOrRegister('register')}>Register here</button>
+                          <button className="ml-1" onClick={() =>setIsLoginOrRegister('register')}>Register 
+                          </button>
                        </div>
                         )}   
                 </div>

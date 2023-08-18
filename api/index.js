@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 const Message = require('./models/Message')
 const ws = require('ws');
 const fs = require('fs');
-
+//line 35
 dotenv.config();
 
 mongoose.connect(process.env.MONGO_URL)
@@ -19,6 +19,9 @@ mongoose.connect(process.env.MONGO_URL)
   .catch((error) => {
     console.error('Failed to connect to MongoDB', error);
   });
+// mongoose.connect(process.env.MONGO_URL, (err) => {
+//   if (err) throw err;
+// });
 
 const jwtSecret = process.env.JWT_SECRET;
 const bcryptSalt = bcrypt.genSaltSync(10);
@@ -32,7 +35,6 @@ app.use(cors({
   credentials: true, 
   origin: process.env.CLIENT_URL,
 }));
-
 async function getUserDataFromRequest(req)
  {
   return new Promise((resolve, reject) =>{
@@ -66,7 +68,7 @@ app.get('/messages/:userId',async (req, res) =>{
    const pageSize = parseInt(limit) || 10;
    const skip = (pageNumber - 1) * pageSize;
 
-   const messagesQuery = Message.find({
+   const messagesQuery = await Message.find({
     sender: {$in:[userId, ourUserId]},
     recipient:{$in:[userId, ourUserId]},
    }).sort({createdAt:1})
@@ -90,7 +92,7 @@ res.json({
  
 
 app.get('/people', async (req, res) =>{
-  const users = await User.find({}, {_id:1, username:1});
+  const users = await User.find({}, {'_id':1, username:1});
   res.json(users);
 })
 
@@ -106,7 +108,6 @@ app.get('/profile', (req, res) =>{
    else{
     res.status(401).json('no token');
    }
-
 })
 
 
@@ -153,7 +154,6 @@ app.post('/register', async(req, res) => {
        throw err;
      res.status(500).json('error');
    }
- 
 });
 
 const server = app.listen(4000);
@@ -221,7 +221,7 @@ connection.on('pong', () => {
         // const bufferData = Buffer.from(file.data.split(',')[1], 'base64');
         const bufferData = new Buffer(file.data.split(',')[1], 'base64');
         fs.writeFile(path, bufferData, () => { 
-          console.log('file saved:'+path);
+         // console.log('file saved:'+path);
         });
        }
        if(recipient && (text || file))

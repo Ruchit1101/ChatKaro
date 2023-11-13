@@ -11,6 +11,7 @@ const ws = require('ws');
 const fs = require('fs');
 
 dotenv.config();
+const port = process.env.YOUR_PORT || 4000;
 mongoose.connect(process.env.MONGO_URL)
   .then(() => {
     console.log('MongoDB connected successfully');
@@ -70,7 +71,10 @@ app.get('/profile', (req,res) => {
   const token = req.cookies?.token;
   if (token) {
     jwt.verify(token, jwtSecret, {}, (err, userData) => {
-      if (err) throw err;
+      if (err){
+        console.error("error in fetching profile");
+        throw err;
+      } 
       res.json(userData);
     });
   } else {
@@ -112,12 +116,15 @@ app.post('/register', async (req,res) => {
       });
     });
   } catch(err) {
-    if (err) throw err;
+    if (err){
+      console.error("Error in registration");
+      throw err;
+    } 
     res.status(500).json('error');
   }
 });
 
-const server = app.listen(4000);
+const server = app.listen(port);
 
 const wss = new ws.WebSocketServer({server});
 wss.on('connection', (connection, req) => {

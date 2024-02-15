@@ -17,18 +17,18 @@ mongoose.connect(process.env.MONGO_URL)
     console.log('MongoDB connected successfully');
   })
   .catch((err) => {
-    console.error('MongoDB connection error: ', err);
+    console.error('Database connection error: ', err);
   });
 
 const jwtSecret = process.env.JWT_SECRET;
 const bcryptSalt = bcrypt.genSaltSync(10);
-
+const accessPoint = process.env.CLIENT_URL;
 const app = express();
 app.use('/uploads', express.static(__dirname + '/uploads'));
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: accessPoint,
   credentials: true,
 }));
 
@@ -37,10 +37,12 @@ async function getUserDataFromRequest(req) {
     const token = req.cookies?.token;
     if (token) {
       jwt.verify(token, jwtSecret, {}, (err, userData) => {
-        if (err) throw err;
+        if (err)
+          throw err;
         resolve(userData);
       });
-    } else {
+    } 
+    else {
       reject('no token');
     }
   });
@@ -94,6 +96,7 @@ app.post('/login', async (req,res) => {
         });
       });
     }
+   
   }
 });
 
@@ -109,8 +112,12 @@ app.post('/register', async (req,res) => {
       username:username,
       password:hashedPassword,
     });
+    // console.log(hashedPassword);
     jwt.sign({userId:createdUser._id,username}, jwtSecret, {}, (err, token) => {
-      if (err) throw err;
+      if (err){ 
+        console.log("Error in registering");
+        throw err;
+      }
       res.cookie('token', token, {sameSite:'none', secure:true}).status(201).json({
         id: createdUser._id,
       });
@@ -124,12 +131,17 @@ app.post('/register', async (req,res) => {
   }
 });
 
-const server = app.listen(port);
+const server = app.listen(port,()=>{
+  console.log(`Server running on port: ${port}`);
+});
+server.on('error', (error) => {
+  console.error('Error starting the server:', error);
+});
 
 const wss = new ws.WebSocketServer({server});
 wss.on('connection', (connection, req) => {
 
-  function notifyAboutOnlinePeople() {
+function notifyAboutOnlinePeople() {
     [...wss.clients].forEach(client => {
       client.send(JSON.stringify({
         online: [...wss.clients].map(c => ({userId:c.userId,username:c.username})),
@@ -206,6 +218,6 @@ wss.on('connection', (connection, req) => {
     }
   });
 
-  // notify everyone about online people (when someone connects)
+  // (when someone connects)
   notifyAboutOnlinePeople();
 });

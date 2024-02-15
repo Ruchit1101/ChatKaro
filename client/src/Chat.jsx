@@ -28,7 +28,7 @@ export default function Chat(){
       ws.addEventListener('message',handleMessage );
 //Added for improvements...
       ws.addEventListener('close', () =>{
-        setTimeout(() => {
+         setTimeout(() => {
             console.log('Disconnected. Trying to reconnect.');
            connectToWs();
         }, 1000);
